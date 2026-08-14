@@ -1,183 +1,192 @@
 # CANOPY
 
-**Temporal Geospatial AI for Early Urban Vegetation-Loss Detection, Climate-Risk Forecasting, and Intervention Optimization**
+Temporal geospatial AI for early urban vegetation loss detection, climate risk forecasting, and intervention optimization. Bengaluru case study.
 
-Research-grade experimental system. Primary case study: Bengaluru, India.
+## What it does
 
-## Status
-
-- Milestone 1 (research discovery): complete
-- Milestone 2 (pilot data validation): pipeline implemented
-- Milestone 3 (baseline detection): pipeline implemented
-- Milestone 4 (temporal model): pipeline implemented
-- Milestone 5 (ground truth): pipeline implemented
-- Real manual labels + imagery: pending
-
-## Milestone 2 — Data validation
-
-```bash
-# Optional: export real Sentinel-2 monthly NDVI (requires GEE auth)
-pip install -e ".[gee]"
-earthengine authenticate
-python scripts/gee_export_sentinel2.py --check-auth
-python scripts/gee_export_sentinel2.py
-
-# Run QC + preprocessing (uses data/raw/s2_pilot/*.tif if present, else synthetic demo)
-python scripts/run_m2_validation.py
-# or: python -m canopy m2
-```
-
-Outputs:
-- `data/processed/pilot/monthly_stack.nc`
-- `results/qc/pilot_aoi_qc.json`
-- `results/qc/figures/`
-- `docs/datasets/preprocessing_spec_pilot.md`
-
-## Milestone 3 — Baseline detection
-
-Requires M2 stack (`data/processed/pilot/monthly_stack.nc`).
-
-```bash
-python scripts/run_m3_detection.py
-# or: python -m canopy m3
-```
-
-Uses manual labels from `data/external/m3_labels.csv` if present; otherwise auto-labels from stack trajectories (**weak proxy**, flagged in report).
-
-Outputs:
-- `results/m3/detection_baselines.json`
-- `results/m3/baseline_f1_comparison.png`
-
-Baselines: NDVI threshold, bi-temporal delta, BFAST-style monitor, harmonic persistence. Evaluation uses spatial block holdout on test cells.
-
-## Milestone 5 — Ground truth expansion
-
-```bash
-python scripts/run_m5_ground_truth.py
-python scripts/run_m5_ground_truth.py --no-simulate   # human annotation mode only
-# or: python -m canopy m5
-```
-
-Outputs:
-- `data/external/annotation_batch.csv` — 500+ cells ready for manual labeling
-- `data/external/m5_merged_labels.csv` — consensus labels (after raters provided)
-- `results/m5/ground_truth_report.json` — Cohen's kappa and merge stats
-
-For real research: fill `annotation_batch.csv`, split between two annotators as `rater_a_labels.csv` and `rater_b_labels.csv`, re-run without `--no-simulate` and with `simulate_raters_for_pipeline_test: false` in config.
-
-## Milestone 4 — Temporal anomaly model
-
-Requires M5 merged labels (or falls back to auto-labels).
-
-```bash
-python scripts/run_m5_ground_truth.py
-python scripts/run_m4_detection.py
-# or both: python scripts/run_m4_m5.py
-# or: python -m canopy m4
-```
-
-Outputs:
-- `results/m4/temporal_model_eval.json`
-- `results/m4/m4_method_comparison.png`
-- `results/m4/m4_ablation_comparison.png`
-
-Includes temporal GBM + sequence alerter, compared to M3 baselines, with feature ablations (full / ndvi_only / no_seasonal).
+Detects abnormal vegetation change from satellite data, forecasts future loss, estimates heat exposure impact, and optimizes where to plant trees under realistic constraints (budget, water, land). Compares against baselines. Quantifies uncertainty.
 
 ## Research question
 
-Can a reproducible temporal geospatial pipeline detect emerging urban vegetation degradation, forecast localized heat-exposure consequences, and optimize geographically targeted interventions under realistic constraints—in a way that measurably outperforms established baselines?
+Can temporal geospatial ML detect emerging vegetation degradation early enough to forecast localized heat exposure and optimize interventions under realistic constraints? Does it beat simple strategies?
 
-## Architecture
+## Key hypotheses
 
-```
-Data -> QC/Harmonization -> Features -> Temporal Model -> Detection
-  -> Forecasting -> Heat Exposure -> Intervention Model -> Optimization
-  -> Uncertainty -> Evaluation -> Visualization
-```
+1. Temporal models beat single-date models for detecting persistent change
+2. Multi-source data improves detection vs vegetation index only
+3. Optimizing for human exposure produces different results than just optimizing for temperature
+4. Constrained optimization beats random, heat-only, canopy-only strategies
+5. Sometimes preserving mature trees is better than planting new ones
+6. Model uncertainty matters for decisions
 
-## Repository layout
-
-```
-canopy/
-  configs/           Experiment YAML
-  src/canopy/        Core modules
-  scripts/           Runnable experiments
-  tests/             Unit tests
-  docs/              Research documentation
-  data/external/     AOI GeoJSON, label templates
-  results/           Experiment outputs (generated)
-  app/               Research inspection CLI
-```
-
-## Installation
+## Setup
 
 ```bash
+git clone https://github.com/chetx27/canopy
+cd canopy
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Google Earth Engine (optional):
-
+Optional Earth Engine:
 ```bash
 pip install -e ".[gee]"
 earthengine authenticate
 ```
 
-## Quick start
+## Run it
 
 ```bash
-pytest
-python scripts/run_mvre.py
-python scripts/run_optimization_eval.py
+# Tests
+pytest tests/
+
+# Minimum viable experiment (MVRE)
+python scripts/run_mvre.py --config configs/mvre_detection.yaml --seed 303
+
+# Optimization baselines
+python scripts/run_optimization_eval.py --config configs/experiment_optimization.yaml
+
+# Interactive research interface
 python app/research_interface.py --label persistent_loss --seed 303
 ```
 
-## Data acquisition
+## Data pipeline
 
-1. Place AOI GeoJSON at `data/external/bengaluru_pilot_aoi.geojson`
-2. Export imagery: `python scripts/gee_export_sentinel2.py`
-3. Create labels CSV from manual interpretation (`data/external/mvre_labels_template.csv`)
+1. Place study area: `data/external/bengaluru_pilot_aoi.geojson`
+2. Export Sentinel-2: `python scripts/gee_export_sentinel2.py`
+3. Create ground truth labels: `data/external/mvre_labels_template.csv` (manual interpretation)
+4. Preprocess: `python scripts/preprocess_sentinel2.py`
 
-## Documentation
+## Architecture
 
-| Document | Description |
-|---|---|
-| [docs/research_discovery.md](docs/research_discovery.md) | Problem formulation, gaps, roadmap, MVRE |
-| [docs/research_question.md](docs/research_question.md) | RQs and hypotheses |
-| [docs/literature/literature_table.md](docs/literature/literature_table.md) | Literature table |
-| [docs/dataset_card.md](docs/dataset_card.md) | Dataset inventory |
-| [docs/experimental_protocol.md](docs/experimental_protocol.md) | Baselines and metrics |
-| [docs/methodology/methodology.md](docs/methodology/methodology.md) | Methods |
-| [docs/limitations.md](docs/limitations.md) | Known limitations |
-| [docs/reproducibility.md](docs/reproducibility.md) | Reproduction steps |
+```
+Sentinel-2 imagery
+  ↓
+Cloud filtering, alignment, CRS validation
+  ↓
+Vegetation indices (NDVI, EVI, NDWI, etc)
+  ↓
+Temporal representation (seasonal decomposition, trajectories)
+  ↓
+Anomaly detection (5 baselines + learned model)
+  ↓
+Forecasting (persistence, seasonal naive, linear, GBDT)
+  ↓
+Heat exposure modeling (population weighted)
+  ↓
+Intervention modeling (preserve, plant, restore, nothing)
+  ↓
+Constrained optimization
+  ↓
+Uncertainty quantification
+  ↓
+Evaluation (spatial splits, ablations, robustness)
+```
 
-## Modules
+## Core modules
 
-| Module | Purpose |
-|---|---|
-| `detection/` | NDVI threshold, bi-temporal, harmonic persistence, BFAST-style |
-| `forecasting/` | Persistence, seasonal naive, linear, GBDT |
-| `heat/` | Population-weighted exposure |
-| `optimization/` | Greedy preserve/plant/restore optimizer + baselines |
-| `uncertainty/` | Spatial conformal intervals, ranking stability |
-| `evaluation/` | Metrics, spatial splits, experiment registry |
+- `detection/` - Change detection methods (5+ baselines). Metrics: precision, recall, F1, IoU, detection delay.
+- `forecasting/` - Vegetation state forecasts 1-12 months ahead. Metrics: MAE, RMSE, calibration, coverage.
+- `heat/` - Human heat exposure (population weighted). Not just temperature.
+- `optimization/` - Multi-objective constrained optimizer. Compares preservation vs planting.
+- `uncertainty/` - Conformal intervals, ranking stability, sensitivity analysis.
+- `evaluation/` - Spatial train/val/test splits (prevents leakage), experiment registry, baseline comparison.
 
-## Experiments
+## Baselines
 
-All parameters are configurable via YAML. No experimental metrics are hard-coded.
+All results compared against these under identical budget:
+1. Random allocation
+2. Hottest locations only
+3. Lowest canopy only
+4. Highest population only
+5. Socioeconomic vulnerability only
+6. Greedy heat exposure reduction
+7. CANOPY optimizer
 
-- MVRE detection pilot: `configs/mvre_detection.yaml`
-- Optimization baselines: `configs/experiment_optimization.yaml`
+## Key design choices
 
-## Limitations
+**Seasonality:** Normal seasonal vegetation drop is not degradation. Explicitly models month-of-year, monsoon cycles, long-term trends. Requires repeated anomalies to trigger alert, not single observation.
 
-See [docs/limitations.md](docs/limitations.md). Synthetic smoke tests validate wiring only; they are not scientific results.
+**Ground truth:** Independent from features. Manual annotation from high-res imagery, not generated from spectral indices.
+
+**Preservation vs planting:** Does not assume equivalence. Mature trees give immediate benefit. New trees take years. Optimizer picks preservation when cost-benefit favors it.
+
+**Data leakage prevention:** Future imagery cannot inform past predictions. Neighboring pixels not randomly split. Normalization on training set only. Intervention locations not selected using test outcomes.
+
+## Milestones
+
+1. Research discovery: DONE
+2. Data validation: IN PROGRESS (waiting for real Sentinel-2 export + labels)
+3. Vegetation temporal baseline: NEXT
+4. Temporal anomaly model
+5. Vegetation forecasting
+6. Heat exposure model
+7. Intervention simulator
+8. Optimization engine
+9. Robustness and ablation studies
+10. Cross-city validation
+11. Research interface
+12. Paper
+
+## Docs
+
+- `research_discovery.md` - Problem, literature gaps, roadmap
+- `research_question.md` - RQs and hypotheses
+- `dataset_card.md` - Data inventory and sources
+- `experimental_protocol.md` - Baselines and metrics
+- `methodology/methodology.md` - Technical details
+- `literature/literature_table.md` - Structured review
+- `limitations.md` - Known issues
+- `reproducibility.md` - Step-by-step reproduction
+
+## Status
+
+- Research discovery and software infrastructure: done
+- Real data and empirical results: not yet (requires actual Sentinel-2 export and ground truth labels)
+
+No synthetic results claimed as real. No hard coded metrics.
+
+## Limits
+
+- Cloud contamination in satellite data
+- LST is not air temperature
+- Tree cooling is context dependent
+- 5-6 years of data may miss rare events
+- Transfer to other cities not yet tested
+- Actual tree survival and social acceptance unknown
+
+See `limitations.md` for full analysis.
+
+## Tests
+
+```bash
+pytest tests/ -v --cov=src/canopy
+```
+
+Validates: coordinate transforms, spatial alignment, temporal ordering, leakage prevention, constraint enforcement.
+
+## Reproducibility
+
+Provided: environment specs, data scripts, training commands with random seeds, config files, experiment metadata.
+
+To reproduce: See `reproducibility.md` for step-by-step.
 
 ## Citation
 
-See [CITATION.cff](CITATION.cff).
+```bibtex
+@software{canopy2026,
+  title={CANOPY: Temporal Geospatial AI for Early Urban Vegetation Loss Detection},
+  author={Chethana},
+  year={2026},
+  url={https://github.com/chetx27/canopy}
+}
+```
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT
+
+---
+
+Current status: Milestones 1-2 complete, empirical validation starting. Next: temporal baseline model.
