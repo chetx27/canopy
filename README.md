@@ -7,8 +7,28 @@ Research-grade experimental system. Primary case study: Bengaluru, India.
 ## Status
 
 - Milestone 1 (research discovery): complete
-- Research software infrastructure: implemented
-- Empirical results: **not yet produced** (requires real data export and independent labels)
+- Milestone 2 (pilot data validation): pipeline implemented; run locally
+- Empirical results on **real** imagery: pending GEE export + labels
+
+## Milestone 2 — Data validation
+
+```bash
+# Optional: export real Sentinel-2 monthly NDVI (requires GEE auth)
+pip install -e ".[gee]"
+earthengine authenticate
+python scripts/gee_export_sentinel2.py --check-auth
+python scripts/gee_export_sentinel2.py
+
+# Run QC + preprocessing (uses data/raw/s2_pilot/*.tif if present, else synthetic demo)
+python scripts/run_m2_validation.py
+# or: python -m canopy m2
+```
+
+Outputs:
+- `data/processed/pilot/monthly_stack.nc` — aligned monthly NDVI stack
+- `results/qc/pilot_aoi_qc.json` — QC metrics and go/no-go for M3
+- `results/qc/figures/` — valid fraction, observation count, mean NDVI plots
+- `docs/datasets/preprocessing_spec_pilot.md` — frozen preprocessing spec
 
 ## Research question
 
