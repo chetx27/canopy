@@ -1,0 +1,27 @@
+experiment_id: m4_temporal_model_v1
+extends: m3_baseline_detection.yaml
+
+detection:
+  baseline_methods:
+    - ndvi_threshold
+    - bi_temporal_delta
+    - bfast_monitor_style
+    - harmonic_persistence
+
+temporal_model:
+  max_lags: 3
+  sequence_window: 6
+  train_sequence_model: true
+  probability_threshold: 0.5
+
+labels:
+  merged_path: data/external/m5_merged_labels.csv
+  path: data/external/m3_labels.csv
+  n_per_class: 50
+
+evaluation:
+  min_f1_gain_vs_best_baseline: 0.03
+
+paths:
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  results: results/m4
