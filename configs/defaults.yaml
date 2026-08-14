@@ -1,0 +1,50 @@
+project:
+  name: canopy
+  seed: 42
+  crs: "EPSG:32643"
+
+study_area:
+  name: bengaluru
+  aoi_path: data/external/bengaluru_aoi.geojson
+  pilot_aoi_path: data/external/bengaluru_pilot_aoi.geojson
+  grid_resolution_m: 30
+  optimization_resolution_m: 100
+
+temporal:
+  start_date: "2023-01-01"
+  end_date: "2024-06-30"
+  composite: monthly
+  min_clear_observations: 2
+
+detection:
+  persistence_min_months: 2
+  anomaly_z_threshold: 2.0
+  ndvi_threshold: 0.25
+  harmonic_order: 3
+
+forecasting:
+  horizons_months: [1, 3, 6]
+  quantiles: [0.1, 0.5, 0.9]
+
+heat:
+  target: lst_celsius
+  exposure_population_weight: true
+  lst_reference_celsius: 24.0
+
+optimization:
+  budget_units: 1000
+  water_budget_m3: 50000
+  min_spacing_m: 15
+  preserve_maturity_threshold: 0.6
+  actions: [none, preserve, restore, plant]
+
+evaluation:
+  spatial_block_size_m: 500
+  bootstrap_blocks: 200
+  confidence_level: 0.95
+
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed
+  results: results

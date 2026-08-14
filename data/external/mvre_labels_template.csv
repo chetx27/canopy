@@ -1,0 +1,4 @@
+cell_id,label,seed,lat,lon,event_month
+stable_0,stable,101,13.08,77.58,
+seasonal_0,seasonal,202,13.09,77.59,
+persistent_0,persistent_loss,303,13.10,77.60,9

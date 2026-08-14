@@ -1,0 +1,26 @@
+experiment_id: optimization_baselines_v1
+extends: defaults.yaml
+
+optimization:
+  budget_units: 1000
+  water_budget_m3: 50000
+  strategies:
+    - random
+    - max_lst
+    - min_canopy
+    - max_population
+    - greedy_exposure
+    - canopy_optimizer
+    - canopy_plant_only
+
+evaluation:
+  metrics:
+    - total_exposure_reduction
+    - population_benefited
+    - benefit_per_unit_cost
+    - benefit_per_unit_water
+    - ranking_stability_kendall
+
+paths:
+  inputs: data/processed/optimization_grid.parquet
+  results: results/optimization

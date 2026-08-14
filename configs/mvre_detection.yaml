@@ -1,0 +1,31 @@
+experiment_id: mvre_detection_pilot_v1
+extends: defaults.yaml
+
+study_area:
+  aoi_path: data/external/bengaluru_pilot_aoi.geojson
+  grid_resolution_m: 30
+
+temporal:
+  start_date: "2023-01-01"
+  end_date: "2024-06-30"
+
+detection:
+  methods:
+    - ndvi_threshold
+    - bi_temporal_delta
+    - harmonic_persistence
+  persistence_min_months: 2
+  anomaly_z_threshold: 2.0
+
+labels:
+  path: data/external/mvre_labels.csv
+  classes: [stable, seasonal, persistent_loss]
+
+evaluation:
+  primary_metrics: [persistent_f1, detection_delay_days, false_positive_rate]
+  go_threshold_f1_gain: 5.0
+  go_threshold_delay_days: 30
+
+paths:
+  timeseries: data/processed/pilot_ndvi_monthly.zarr
+  results: results/mvre

@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "bengaluru_metro"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.35, 12.75], [77.85, 12.75], [77.85, 13.25], [77.35, 13.25], [77.35, 12.75]]]
+      }
+    }
+  ]
+}

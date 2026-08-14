@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "bengaluru_pilot"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[77.55, 13.05], [77.65, 13.05], [77.65, 13.12], [77.55, 13.12], [77.55, 13.05]]]
+      }
+    }
+  ]
+}

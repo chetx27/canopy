@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "CANOPY: Temporal Geospatial AI for Urban Vegetation-Loss Detection and Intervention Optimization"
+message: "If you use this software, please cite it as below."
+authors:
+  - name: "CANOPY Research Team"
+repository-code: "https://github.com/canopy-research/canopy"
+license: MIT
+version: 0.1.0
+date-released: 2026-08-14
+keywords:
+  - remote sensing
+  - urban vegetation
+  - change detection
+  - heat exposure
+  - optimization
+preferred-citation:
+  type: software
+  title: "CANOPY Research System"
+  year: 2026
