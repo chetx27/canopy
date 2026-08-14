@@ -8,7 +8,7 @@ Research-grade experimental system. Primary case study: Bengaluru, India.
 
 - Milestone 1 (research discovery): complete
 - Milestone 2 (pilot data validation): pipeline implemented; run locally
-- Empirical results on **real** imagery: pending GEE export + labels
+- Milestone 3 (baseline detection): pipeline implemented; run locally
 
 ## Milestone 2 — Data validation
 
@@ -25,10 +25,27 @@ python scripts/run_m2_validation.py
 ```
 
 Outputs:
-- `data/processed/pilot/monthly_stack.nc` — aligned monthly NDVI stack
-- `results/qc/pilot_aoi_qc.json` — QC metrics and go/no-go for M3
-- `results/qc/figures/` — valid fraction, observation count, mean NDVI plots
-- `docs/datasets/preprocessing_spec_pilot.md` — frozen preprocessing spec
+- `data/processed/pilot/monthly_stack.nc`
+- `results/qc/pilot_aoi_qc.json`
+- `results/qc/figures/`
+- `docs/datasets/preprocessing_spec_pilot.md`
+
+## Milestone 3 — Baseline detection
+
+Requires M2 stack (`data/processed/pilot/monthly_stack.nc`).
+
+```bash
+python scripts/run_m3_detection.py
+# or: python -m canopy m3
+```
+
+Uses manual labels from `data/external/m3_labels.csv` if present; otherwise auto-labels from stack trajectories (**weak proxy**, flagged in report).
+
+Outputs:
+- `results/m3/detection_baselines.json`
+- `results/m3/baseline_f1_comparison.png`
+
+Baselines: NDVI threshold, bi-temporal delta, BFAST-style monitor, harmonic persistence. Evaluation uses spatial block holdout on test cells.
 
 ## Research question
 
