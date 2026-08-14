@@ -24,6 +24,12 @@ def main() -> None:
     m3 = sub.add_parser("m3", help="Run M3 baseline detection evaluation")
     m3.add_argument("--config", default="configs/m3_baseline_detection.yaml")
 
+    m5 = sub.add_parser("m5", help="Run M5 ground-truth batch and inter-rater agreement")
+    m5.add_argument("--config", default="configs/m5_ground_truth.yaml")
+
+    m4 = sub.add_parser("m4", help="Run M4 temporal GBM detection evaluation")
+    m4.add_argument("--config", default="configs/m4_temporal_model.yaml")
+
     args = parser.parse_args()
     if args.command == "mvre":
         result = run_mvre(Path(args.config))
@@ -48,6 +54,16 @@ def main() -> None:
             run_m2_validation(P("configs/m2_data_validation.yaml"))
         result = run_m3_detection(Path(args.config))
         print(f"M3 complete. proceed_to_m4={result['go_decision']['proceed_to_m4_temporal_model']}")
+    elif args.command == "m5":
+        from canopy.experiments.m5_ground_truth import run_m5_ground_truth
+
+        result = run_m5_ground_truth(Path(args.config))
+        print(f"M5 complete. kappa={result['inter_rater'].get('overall_kappa')}")
+    elif args.command == "m4":
+        from canopy.experiments.m4_detection import run_m4_detection
+
+        result = run_m4_detection(Path(args.config))
+        print(f"M4 complete. proceed_to_m6={result['go_decision']['proceed_to_m6_forecasting']}")
 
 
 if __name__ == "__main__":

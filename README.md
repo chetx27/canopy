@@ -7,8 +7,11 @@ Research-grade experimental system. Primary case study: Bengaluru, India.
 ## Status
 
 - Milestone 1 (research discovery): complete
-- Milestone 2 (pilot data validation): pipeline implemented; run locally
-- Milestone 3 (baseline detection): pipeline implemented; run locally
+- Milestone 2 (pilot data validation): pipeline implemented
+- Milestone 3 (baseline detection): pipeline implemented
+- Milestone 4 (temporal model): pipeline implemented
+- Milestone 5 (ground truth): pipeline implemented
+- Real manual labels + imagery: pending
 
 ## Milestone 2 — Data validation
 
@@ -46,6 +49,39 @@ Outputs:
 - `results/m3/baseline_f1_comparison.png`
 
 Baselines: NDVI threshold, bi-temporal delta, BFAST-style monitor, harmonic persistence. Evaluation uses spatial block holdout on test cells.
+
+## Milestone 5 — Ground truth expansion
+
+```bash
+python scripts/run_m5_ground_truth.py
+python scripts/run_m5_ground_truth.py --no-simulate   # human annotation mode only
+# or: python -m canopy m5
+```
+
+Outputs:
+- `data/external/annotation_batch.csv` — 500+ cells ready for manual labeling
+- `data/external/m5_merged_labels.csv` — consensus labels (after raters provided)
+- `results/m5/ground_truth_report.json` — Cohen's kappa and merge stats
+
+For real research: fill `annotation_batch.csv`, split between two annotators as `rater_a_labels.csv` and `rater_b_labels.csv`, re-run without `--no-simulate` and with `simulate_raters_for_pipeline_test: false` in config.
+
+## Milestone 4 — Temporal anomaly model
+
+Requires M5 merged labels (or falls back to auto-labels).
+
+```bash
+python scripts/run_m5_ground_truth.py
+python scripts/run_m4_detection.py
+# or both: python scripts/run_m4_m5.py
+# or: python -m canopy m4
+```
+
+Outputs:
+- `results/m4/temporal_model_eval.json`
+- `results/m4/m4_method_comparison.png`
+- `results/m4/m4_ablation_comparison.png`
+
+Includes temporal GBM + sequence alerter, compared to M3 baselines, with feature ablations (full / ndvi_only / no_seasonal).
 
 ## Research question
 
