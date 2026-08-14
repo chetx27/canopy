@@ -1,0 +1,30 @@
+experiment_id: m3_baseline_detection_v1
+extends: m2_data_validation.yaml
+
+detection:
+  methods:
+    - ndvi_threshold
+    - bi_temporal_delta
+    - bfast_monitor_style
+    - harmonic_persistence
+  ndvi_threshold: 0.25
+  delta_threshold: -0.15
+  anomaly_z_threshold: 2.0
+  persistence_min_months: 2
+  harmonic_order: 3
+  history_fraction: 0.6
+
+labels:
+  path: data/external/m3_labels.csv
+  n_per_class: 50
+  classes: [stable, seasonal, persistent_loss]
+
+evaluation:
+  spatial_block_size_m: 500
+  train_fraction: 0.6
+  val_fraction: 0.2
+  min_f1_gain_vs_ndvi_threshold: 0.05
+
+paths:
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  results: results/m3
