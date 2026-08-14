@@ -1,0 +1,17 @@
+experiment_id: m5_ground_truth_v1
+extends: m2_data_validation.yaml
+
+ground_truth:
+  n_cells: 504
+  min_kappa: 0.6
+  min_merged_labels: 100
+  simulate_raters_for_pipeline_test: true
+  simulated_agreement_rate: 0.85
+
+paths:
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  annotation_batch: data/external/annotation_batch.csv
+  rater_a: data/external/rater_a_labels.csv
+  rater_b: data/external/rater_b_labels.csv
+  merged_labels: data/external/m5_merged_labels.csv
+  results: results/m5
