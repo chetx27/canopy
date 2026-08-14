@@ -1,0 +1,42 @@
+experiment_id: m2_pilot_data_validation_v1
+extends: defaults.yaml
+
+study_area:
+  aoi_path: data/external/bengaluru_pilot_aoi.geojson
+  grid_resolution_m: 30
+
+temporal:
+  start_date: "2023-01-01"
+  end_date: "2024-06-30"
+  composite: monthly
+
+preprocessing:
+  cloud_mask_scl: [3, 8, 9, 10, 11]
+  max_cloud_fraction: 0.6
+  composite_method: median
+  nodata: -9999
+  resampling: bilinear
+
+gee:
+  s2_collection: COPERNICUS/S2_SR_HARMONIZED
+  s1_collection: COPERNICUS/S1_GRD
+  scale_m: 30
+  max_pixels: 1e9
+  export_to_drive: true
+  drive_folder: canopy_bengaluru_pilot
+
+qc:
+  monsoon_months: [6, 7, 8, 9, 10]
+  min_months_required: 12
+  max_missing_fraction: 0.5
+  ndvi_valid_range: [-0.2, 1.0]
+  go_cloud_gap_rate: 0.7
+
+paths:
+  raw_s2: data/raw/s2_pilot
+  raw_s1: data/raw/s1_pilot
+  interim: data/interim/pilot
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  qc_report: results/qc/pilot_aoi_qc.json
+  qc_figures: results/qc/figures
+  preprocessing_spec: docs/datasets/preprocessing_spec_pilot.md
