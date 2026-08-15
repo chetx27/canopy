@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import numpy as np
+
+BenefitFn = Callable[["CellState", str], float]
 
 
 @dataclass
@@ -16,6 +19,7 @@ class CellState:
     plantable: bool
     preserve_candidate: bool
     exposure: float = 0.0
+    restorable: bool = False
 
 
 @dataclass
@@ -63,7 +67,12 @@ def _water(action: str, cfg: OptimizationConfig) -> float:
     return {"preserve": cfg.preserve_water, "restore": cfg.restore_water, "plant": cfg.plant_water}.get(action, 0.0)
 
 
-def greedy_optimize(cells: list[CellState], cfg: OptimizationConfig, plant_only: bool = False) -> OptimizationResult:
+def greedy_optimize(
+    cells: list[CellState],
+    cfg: OptimizationConfig,
+    plant_only: bool = False,
+    benefit_fn: BenefitFn | None = None,
+) -> OptimizationResult:
     remaining_budget = cfg.budget_units
     remaining_water = cfg.water_budget_m3
     selected: list[tuple[int, str]] = []
@@ -76,14 +85,14 @@ def greedy_optimize(cells: list[CellState], cfg: OptimizationConfig, plant_only:
         actions = []
         if not plant_only and cfg.allow_preserve and cell.preserve_candidate:
             actions.append("preserve")
-        if cfg.allow_restore and cell.plantable:
+        if cfg.allow_restore and cell.restorable:
             actions.append("restore")
         if cfg.allow_plant and cell.plantable:
             actions.append("plant")
         for action in actions:
             if action in {"restore", "plant"} and not cell.water_feasible:
                 continue
-            benefit = _benefit(cell, action, cfg)
+            benefit = benefit_fn(cell, action) if benefit_fn else _benefit(cell, action, cfg)
             cost = _cost(action, cfg)
             water = _water(action, cfg)
             if cost <= 0:
@@ -121,7 +130,12 @@ def greedy_optimize(cells: list[CellState], cfg: OptimizationConfig, plant_only:
     )
 
 
-def random_baseline(cells: list[CellState], cfg: OptimizationConfig, rng: np.random.Generator) -> OptimizationResult:
+def random_baseline(
+    cells: list[CellState],
+    cfg: OptimizationConfig,
+    rng: np.random.Generator,
+    benefit_fn: BenefitFn | None = None,
+) -> OptimizationResult:
     plantable = [c for c in cells if c.plantable and c.water_feasible]
     rng.shuffle(plantable)
     selected = []
@@ -135,7 +149,7 @@ def random_baseline(cells: list[CellState], cfg: OptimizationConfig, rng: np.ran
         if cost > remaining:
             break
         selected.append((cell.cell_id, "plant"))
-        total_benefit += _benefit(cell, "plant", cfg)
+        total_benefit += benefit_fn(cell, "plant") if benefit_fn else _benefit(cell, "plant", cfg)
         total_cost += cost
         total_water += water
         remaining -= cost
@@ -148,7 +162,12 @@ def random_baseline(cells: list[CellState], cfg: OptimizationConfig, rng: np.ran
     )
 
 
-def rank_baseline(cells: list[CellState], cfg: OptimizationConfig, key: str) -> OptimizationResult:
+def rank_baseline(
+    cells: list[CellState],
+    cfg: OptimizationConfig,
+    key: str,
+    benefit_fn: BenefitFn | None = None,
+) -> OptimizationResult:
     if key == "max_lst":
         ranked = sorted(cells, key=lambda c: c.lst, reverse=True)
     elif key == "min_canopy":
@@ -171,7 +190,7 @@ def rank_baseline(cells: list[CellState], cfg: OptimizationConfig, key: str) -> 
         if cost > remaining:
             break
         selected.append((cell.cell_id, "plant"))
-        total_benefit += _benefit(cell, "plant", cfg)
+        total_benefit += benefit_fn(cell, "plant") if benefit_fn else _benefit(cell, "plant", cfg)
         total_cost += cost
         total_water += _water("plant", cfg)
         remaining -= cost

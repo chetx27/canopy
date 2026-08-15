@@ -16,6 +16,7 @@ Detects abnormal vegetation change from satellite data, forecasts future loss, e
 - Milestone 6 (forecasting): pipeline implemented
 - Milestone 7 (heat exposure): pipeline implemented
 - Milestone 8 (intervention simulator): pipeline implemented
+- Milestone 9 (optimization): pipeline implemented
 - Real manual labels + imagery: pending
 
 ## Milestone commands
@@ -72,6 +73,13 @@ python scripts/run_m7_heat_exposure.py
 ```bash
 python scripts/run_m8_intervention.py
 # or: python -m canopy m8
+```
+
+### M9 — Optimization vs baselines
+
+```bash
+python scripts/run_m9_optimization.py
+# or: python -m canopy m9
 ```
 
 ## Research question
@@ -178,8 +186,8 @@ Compared under identical budget:
 6. Forecasting: DONE (pipeline)
 7. Heat exposure model: DONE (pipeline)
 8. Intervention simulator: DONE (pipeline)
-9. Optimization engine: NEXT
-10. Robustness and ablation studies
+9. Optimization engine: DONE (pipeline)
+10. Robustness and ablation studies: NEXT
 11. Cross-city validation
 12. Paper
 

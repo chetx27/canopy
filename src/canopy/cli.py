@@ -39,6 +39,9 @@ def main() -> None:
     m8 = sub.add_parser("m8", help="Run M8 intervention simulator evaluation")
     m8.add_argument("--config", default="configs/m8_intervention.yaml")
 
+    m9 = sub.add_parser("m9", help="Run M9 optimization vs baseline strategies")
+    m9.add_argument("--config", default="configs/m9_optimization.yaml")
+
     args = parser.parse_args()
     if args.command == "mvre":
         result = run_mvre(Path(args.config))
@@ -91,6 +94,11 @@ def main() -> None:
 
         result = run_m8_intervention(Path(args.config))
         print(f"M8 complete. proceed_to_m9={result['go_decision']['proceed_to_m9_optimizer']}")
+    elif args.command == "m9":
+        from canopy.experiments.m9_optimization import run_m9_optimization
+
+        result = run_m9_optimization(Path(args.config))
+        print(f"M9 complete. proceed_to_m10={result['go_decision']['proceed_to_m10_robustness']}")
 
 
 if __name__ == "__main__":

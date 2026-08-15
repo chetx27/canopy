@@ -1,0 +1,25 @@
+experiment_id: m9_optimization_v1
+extends: m8_intervention.yaml
+
+optimization:
+  budget_units: 1000
+  water_budget_m3: 50000
+  allow_preserve: true
+  allow_restore: true
+  allow_plant: true
+  preserve_benefit_factor: 1.5
+  strategies:
+    - random
+    - max_lst
+    - min_canopy
+    - max_population
+    - greedy_exposure
+    - canopy_plant_only
+    - canopy_optimizer
+
+evaluation:
+  min_optimizer_gain_fraction: 0.05
+
+paths:
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  results: results/m9
