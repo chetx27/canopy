@@ -6,6 +6,58 @@ Temporal geospatial AI for early urban vegetation loss detection, climate risk f
 
 Detects abnormal vegetation change from satellite data, forecasts future loss, estimates heat exposure impact, and optimizes where to plant trees under realistic constraints (budget, water, land). Compares against baselines. Quantifies uncertainty.
 
+## Status
+
+- Milestone 1 (research discovery): complete
+- Milestone 2 (pilot data validation): pipeline implemented
+- Milestone 3 (baseline detection): pipeline implemented
+- Milestone 4 (temporal model): pipeline implemented
+- Milestone 5 (ground truth): pipeline implemented
+- Milestone 6 (forecasting): pipeline implemented
+- Real manual labels + imagery: pending
+
+## Milestone commands
+
+### M2 — Data validation
+
+```bash
+pip install -e ".[gee]"
+earthengine authenticate
+python scripts/gee_export_sentinel2.py
+python scripts/run_m2_validation.py
+# or: python -m canopy m2
+```
+
+### M3 — Baseline detection
+
+```bash
+python scripts/run_m3_detection.py
+# or: python -m canopy m3
+```
+
+### M5 — Ground truth
+
+```bash
+python scripts/run_m5_ground_truth.py
+python scripts/run_m5_ground_truth.py --no-simulate
+# or: python -m canopy m5
+```
+
+### M4 — Temporal anomaly model
+
+```bash
+python scripts/run_m5_ground_truth.py
+python scripts/run_m4_detection.py
+# or: python -m canopy m4
+```
+
+### M6 — Forecasting and uncertainty
+
+```bash
+python scripts/run_m6_forecasting.py
+# or: python -m canopy m6
+```
+
 ## Research question
 
 Can temporal geospatial ML detect emerging vegetation degradation early enough to forecast localized heat exposure and optimize interventions under realistic constraints? Does it beat simple strategies?
@@ -30,6 +82,7 @@ pip install -e ".[dev]"
 ```
 
 Optional Earth Engine:
+
 ```bash
 pip install -e ".[gee]"
 earthengine authenticate
@@ -38,16 +91,10 @@ earthengine authenticate
 ## Run it
 
 ```bash
-# Tests
 pytest tests/
 
-# Minimum viable experiment (MVRE)
-python scripts/run_mvre.py --config configs/mvre_detection.yaml --seed 303
-
-# Optimization baselines
-python scripts/run_optimization_eval.py --config configs/experiment_optimization.yaml
-
-# Interactive research interface
+python scripts/run_mvre.py
+python scripts/run_optimization_eval.py
 python app/research_interface.py --label persistent_loss --seed 303
 ```
 
@@ -55,122 +102,100 @@ python app/research_interface.py --label persistent_loss --seed 303
 
 1. Place study area: `data/external/bengaluru_pilot_aoi.geojson`
 2. Export Sentinel-2: `python scripts/gee_export_sentinel2.py`
-3. Create ground truth labels: `data/external/mvre_labels_template.csv` (manual interpretation)
-4. Preprocess: `python scripts/preprocess_sentinel2.py`
+3. Create ground truth labels: `data/external/mvre_labels_template.csv`
+4. Preprocess and validate: `python scripts/run_m2_validation.py`
 
 ## Architecture
 
 ```
 Sentinel-2 imagery
-  ↓
-Cloud filtering, alignment, CRS validation
-  ↓
-Vegetation indices (NDVI, EVI, NDWI, etc)
-  ↓
-Temporal representation (seasonal decomposition, trajectories)
-  ↓
-Anomaly detection (5 baselines + learned model)
-  ↓
-Forecasting (persistence, seasonal naive, linear, GBDT)
-  ↓
-Heat exposure modeling (population weighted)
-  ↓
-Intervention modeling (preserve, plant, restore, nothing)
-  ↓
-Constrained optimization
-  ↓
-Uncertainty quantification
-  ↓
-Evaluation (spatial splits, ablations, robustness)
+  -> Cloud filtering, alignment, CRS validation
+  -> Vegetation indices (NDVI, EVI, NDWI, etc)
+  -> Temporal representation
+  -> Anomaly detection
+  -> Forecasting
+  -> Heat exposure modeling
+  -> Intervention modeling
+  -> Constrained optimization
+  -> Uncertainty quantification
+  -> Evaluation
 ```
 
 ## Core modules
 
-- `detection/` - Change detection methods (5+ baselines). Metrics: precision, recall, F1, IoU, detection delay.
-- `forecasting/` - Vegetation state forecasts 1-12 months ahead. Metrics: MAE, RMSE, calibration, coverage.
-- `heat/` - Human heat exposure (population weighted). Not just temperature.
-- `optimization/` - Multi-objective constrained optimizer. Compares preservation vs planting.
-- `uncertainty/` - Conformal intervals, ranking stability, sensitivity analysis.
-- `evaluation/` - Spatial train/val/test splits (prevents leakage), experiment registry, baseline comparison.
+- `detection/` - Change detection baselines and temporal GBM
+- `forecasting/` - Persistence, seasonal naive, linear, GBDT with holdout evaluation
+- `heat/` - Population-weighted heat exposure
+- `optimization/` - Constrained optimizer with preservation vs planting
+- `uncertainty/` - Conformal intervals and ranking stability
+- `evaluation/` - Spatial splits, metrics, experiment registry
 
 ## Baselines
 
-All results compared against these under identical budget:
+Compared under identical budget:
+
 1. Random allocation
 2. Hottest locations only
 3. Lowest canopy only
 4. Highest population only
-5. Socioeconomic vulnerability only
+5. Vulnerability-weighted only
 6. Greedy heat exposure reduction
 7. CANOPY optimizer
 
 ## Key design choices
 
-**Seasonality:** Normal seasonal vegetation drop is not degradation. Explicitly models month-of-year, monsoon cycles, long-term trends. Requires repeated anomalies to trigger alert, not single observation.
+**Seasonality:** Normal seasonal drop is not degradation. Persistence-aware alerts required.
 
-**Ground truth:** Independent from features. Manual annotation from high-res imagery, not generated from spectral indices.
+**Ground truth:** Independent labels from high-res imagery, not self-generated indices.
 
-**Preservation vs planting:** Does not assume equivalence. Mature trees give immediate benefit. New trees take years. Optimizer picks preservation when cost-benefit favors it.
+**Preservation vs planting:** Mature and new canopy are not equivalent.
 
-**Data leakage prevention:** Future imagery cannot inform past predictions. Neighboring pixels not randomly split. Normalization on training set only. Intervention locations not selected using test outcomes.
+**Data leakage prevention:** Spatial block holdouts, no future data in features.
 
 ## Milestones
 
 1. Research discovery: DONE
-2. Data validation: IN PROGRESS (waiting for real Sentinel-2 export + labels)
-3. Vegetation temporal baseline: NEXT
-4. Temporal anomaly model
-5. Vegetation forecasting
-6. Heat exposure model
-7. Intervention simulator
-8. Optimization engine
-9. Robustness and ablation studies
-10. Cross-city validation
-11. Research interface
+2. Data validation: DONE (pipeline)
+3. Baseline detection: DONE (pipeline)
+4. Temporal anomaly model: DONE (pipeline)
+5. Ground truth expansion: DONE (pipeline)
+6. Forecasting: DONE (pipeline)
+7. Heat exposure model: NEXT
+8. Intervention simulator
+9. Optimization engine
+10. Robustness and ablation studies
+11. Cross-city validation
 12. Paper
 
 ## Docs
 
-- `research_discovery.md` - Problem, literature gaps, roadmap
-- `research_question.md` - RQs and hypotheses
-- `dataset_card.md` - Data inventory and sources
-- `experimental_protocol.md` - Baselines and metrics
-- `methodology/methodology.md` - Technical details
-- `literature/literature_table.md` - Structured review
-- `limitations.md` - Known issues
-- `reproducibility.md` - Step-by-step reproduction
-
-## Status
-
-- Research discovery and software infrastructure: done
-- Real data and empirical results: not yet (requires actual Sentinel-2 export and ground truth labels)
-
-No synthetic results claimed as real. No hard coded metrics.
+- `docs/research_discovery.md`
+- `docs/research_question.md`
+- `docs/dataset_card.md`
+- `docs/experimental_protocol.md`
+- `docs/methodology/methodology.md`
+- `docs/literature/literature_table.md`
+- `docs/limitations.md`
+- `docs/reproducibility.md`
 
 ## Limits
 
 - Cloud contamination in satellite data
 - LST is not air temperature
 - Tree cooling is context dependent
-- 5-6 years of data may miss rare events
 - Transfer to other cities not yet tested
-- Actual tree survival and social acceptance unknown
 
-See `limitations.md` for full analysis.
+See `docs/limitations.md` for full analysis.
 
 ## Tests
 
 ```bash
-pytest tests/ -v --cov=src/canopy
+pytest tests/ -v
 ```
-
-Validates: coordinate transforms, spatial alignment, temporal ordering, leakage prevention, constraint enforcement.
 
 ## Reproducibility
 
-Provided: environment specs, data scripts, training commands with random seeds, config files, experiment metadata.
-
-To reproduce: See `reproducibility.md` for step-by-step.
+See `docs/reproducibility.md`.
 
 ## Citation
 
@@ -186,7 +211,3 @@ To reproduce: See `reproducibility.md` for step-by-step.
 ## License
 
 MIT
-
----
-
-Current status: Milestones 1-2 complete, empirical validation starting. Next: temporal baseline model.

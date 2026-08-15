@@ -30,6 +30,9 @@ def main() -> None:
     m4 = sub.add_parser("m4", help="Run M4 temporal GBM detection evaluation")
     m4.add_argument("--config", default="configs/m4_temporal_model.yaml")
 
+    m6 = sub.add_parser("m6", help="Run M6 forecasting and uncertainty evaluation")
+    m6.add_argument("--config", default="configs/m6_forecasting.yaml")
+
     args = parser.parse_args()
     if args.command == "mvre":
         result = run_mvre(Path(args.config))
@@ -64,6 +67,11 @@ def main() -> None:
 
         result = run_m4_detection(Path(args.config))
         print(f"M4 complete. proceed_to_m6={result['go_decision']['proceed_to_m6_forecasting']}")
+    elif args.command == "m6":
+        from canopy.experiments.m6_forecasting import run_m6_forecasting
+
+        result = run_m6_forecasting(Path(args.config))
+        print(f"M6 complete. proceed_to_m7={result['go_decision']['proceed_to_m7_heat_exposure']}")
 
 
 if __name__ == "__main__":
