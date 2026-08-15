@@ -14,6 +14,7 @@ Detects abnormal vegetation change from satellite data, forecasts future loss, e
 - Milestone 4 (temporal model): pipeline implemented
 - Milestone 5 (ground truth): pipeline implemented
 - Milestone 6 (forecasting): pipeline implemented
+- Milestone 7 (heat exposure): pipeline implemented
 - Real manual labels + imagery: pending
 
 ## Milestone commands
@@ -56,6 +57,13 @@ python scripts/run_m4_detection.py
 ```bash
 python scripts/run_m6_forecasting.py
 # or: python -m canopy m6
+```
+
+### M7 — Heat exposure
+
+```bash
+python scripts/run_m7_heat_exposure.py
+# or: python -m canopy m7
 ```
 
 ## Research question
@@ -160,8 +168,8 @@ Compared under identical budget:
 4. Temporal anomaly model: DONE (pipeline)
 5. Ground truth expansion: DONE (pipeline)
 6. Forecasting: DONE (pipeline)
-7. Heat exposure model: NEXT
-8. Intervention simulator
+7. Heat exposure model: DONE (pipeline)
+8. Intervention simulator: NEXT
 9. Optimization engine
 10. Robustness and ablation studies
 11. Cross-city validation

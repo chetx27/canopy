@@ -1,0 +1,22 @@
+experiment_id: m7_heat_exposure_v1
+extends: m6_forecasting.yaml
+
+heat:
+  lst_reference_celsius: 24.0
+  lst_base_celsius: 30.0
+  lst_canopy_sensitivity: 12.0
+  downscale_coef_canopy: -2.0
+  downscale_coef_building: 1.5
+  priority_top_k: 100
+  population_sensitivity_scales: [0.5, 1.0, 2.0]
+
+evaluation:
+  spatial_block_size_m: 500
+  train_fraction: 0.6
+  val_fraction: 0.2
+  min_lst_correlation: 0.5
+  max_lst_exposure_topk_jaccard: 0.9
+
+paths:
+  processed_stack: data/processed/pilot/monthly_stack.nc
+  results: results/m7
