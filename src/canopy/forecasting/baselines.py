@@ -58,9 +58,10 @@ def gbdt_forecast(
     rows = []
     targets = []
     for i in range(max_lags, len(y)):
-        if not np.isfinite(y[i]):
+        window = y[i - max_lags : i]
+        if not np.all(np.isfinite(window)) or not np.isfinite(y[i]):
             continue
-        rows.append(y[i - max_lags : i])
+        rows.append(window)
         targets.append(y[i])
     if len(rows) < 5:
         return linear_trend_forecast(y, horizon)
@@ -69,6 +70,7 @@ def gbdt_forecast(
     model = GradientBoostingRegressor(random_state=42, n_estimators=100, max_depth=3)
     model.fit(x, t)
     context = y[-max_lags:].copy()
+    context = np.where(np.isfinite(context), context, np.nanmean(y[np.isfinite(y)]))
     for _ in range(horizon):
         pred = model.predict(context.reshape(1, -1))[0]
         context = np.roll(context, -1)
