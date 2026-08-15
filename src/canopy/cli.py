@@ -36,6 +36,9 @@ def main() -> None:
     m7 = sub.add_parser("m7", help="Run M7 heat exposure surface evaluation")
     m7.add_argument("--config", default="configs/m7_heat_exposure.yaml")
 
+    m8 = sub.add_parser("m8", help="Run M8 intervention simulator evaluation")
+    m8.add_argument("--config", default="configs/m8_intervention.yaml")
+
     args = parser.parse_args()
     if args.command == "mvre":
         result = run_mvre(Path(args.config))
@@ -83,6 +86,11 @@ def main() -> None:
             "M7 complete. "
             f"proceed_to_m8={result['go_decision']['proceed_to_m8_intervention_simulator']}"
         )
+    elif args.command == "m8":
+        from canopy.experiments.m8_intervention import run_m8_intervention
+
+        result = run_m8_intervention(Path(args.config))
+        print(f"M8 complete. proceed_to_m9={result['go_decision']['proceed_to_m9_optimizer']}")
 
 
 if __name__ == "__main__":

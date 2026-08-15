@@ -15,6 +15,7 @@ Detects abnormal vegetation change from satellite data, forecasts future loss, e
 - Milestone 5 (ground truth): pipeline implemented
 - Milestone 6 (forecasting): pipeline implemented
 - Milestone 7 (heat exposure): pipeline implemented
+- Milestone 8 (intervention simulator): pipeline implemented
 - Real manual labels + imagery: pending
 
 ## Milestone commands
@@ -64,6 +65,13 @@ python scripts/run_m6_forecasting.py
 ```bash
 python scripts/run_m7_heat_exposure.py
 # or: python -m canopy m7
+```
+
+### M8 — Intervention simulator
+
+```bash
+python scripts/run_m8_intervention.py
+# or: python -m canopy m8
 ```
 
 ## Research question
@@ -169,8 +177,8 @@ Compared under identical budget:
 5. Ground truth expansion: DONE (pipeline)
 6. Forecasting: DONE (pipeline)
 7. Heat exposure model: DONE (pipeline)
-8. Intervention simulator: NEXT
-9. Optimization engine
+8. Intervention simulator: DONE (pipeline)
+9. Optimization engine: NEXT
 10. Robustness and ablation studies
 11. Cross-city validation
 12. Paper
