@@ -14,7 +14,6 @@ It connects remote sensing, temporal modeling, geospatial analysis, uncertainty 
 
 > **Core question:** Given where vegetation is changing, how fast, what risk may emerge, who is exposed, and what interventions are feasible — where should a city act first?
 
----
 
 ## Table of Contents
 
@@ -34,7 +33,6 @@ It connects remote sensing, temporal modeling, geospatial analysis, uncertainty 
 - [Citation](#citation)
 - [License](#license)
 
----
 
 ## Motivation
 
@@ -49,7 +47,6 @@ detect change early → understand persistence → estimate future risk
 
 **Hypothesis:** Temporal and uncertainty-aware geospatial modeling can identify persistent vegetation degradation earlier, and produce more useful intervention priorities, than static thresholds or purely heuristic ranking. This is tested via explicit baselines, spatial/temporal validation, ablations, and robustness experiments — not assumed.
 
----
 
 ## Pipeline Overview
 
@@ -69,7 +66,6 @@ detect change early → understand persistence → estimate future risk
 
 Output is not just "plant a tree here" — it's *why here, how urgent, what happens if nothing is done, what's feasible, who benefits, at what cost, and how confident are we.*
 
----
 
 ## Architecture
 
@@ -101,7 +97,6 @@ Evaluation + Experiment Registry
 Decision-Support Outputs
 ```
 
----
 
 ## Core Modules
 
@@ -116,7 +111,6 @@ Decision-Support Outputs
 9. **Uncertainty Quantification** — conformal methods, prediction intervals, and ranking-stability analysis (e.g., Kendall's τ under perturbation).
 10. **Evaluation & Experiment Registry** — every experiment has a config ID, seed, documented splits, and metrics.
 
----
 
 ## Research Methodology
 
@@ -131,7 +125,6 @@ Staged phases: Discovery → Pilot Data Validation → Baseline Detection → Te
 
 **Leakage safeguards:** spatial block splits with buffer zones (not random pixel splits), strict temporal train/val/test ordering, and preprocessing statistics computed only on training regions.
 
----
 
 ## Evaluation
 
@@ -143,8 +136,6 @@ Staged phases: Discovery → Pilot Data Validation → Baseline Detection → Te
 | Optimization | Exposure reduction, benefit/tree, benefit/cost, equity (Gini, quintile share), ranking stability |
 
 Optimization strategies are benchmarked against random allocation, max-LST, min-canopy, max-population, and greedy-exposure baselines to confirm the full system adds real value.
-
----
 
 ## Repository Structure
 
@@ -166,8 +157,6 @@ canopy/
 └── pyproject.toml
 ```
 
----
-
 ## Installation
 
 ```bash
@@ -186,7 +175,6 @@ pip install -e ".[all]"         # everything
 
 **Requirements:** Python 3.9+, pip, Git, a GDAL-compatible geospatial environment, and optional Earth Engine access.
 
----
 
 ## Usage
 
@@ -201,7 +189,6 @@ The MVRE answers the first go/no-go question: *is there enough signal in the pil
 
 **Pilot experiment parameters:** ~25 km² Bengaluru AOI, ~18-month period, 30 m grid, 150 manually labeled cells; primary metrics are persistent F1, detection delay, and FPR.
 
----
 
 ## Data Sources
 
@@ -211,7 +198,6 @@ The MVRE answers the first go/no-go question: *is there enough signal in the pil
 - **DIST-ALERT** — disturbance reference product
 - **Auxiliary data** — population, land use, climate reanalysis, OpenStreetMap infrastructure, vulnerability proxies
 
----
 
 ## Limitations
 
@@ -221,13 +207,11 @@ The MVRE answers the first go/no-go question: *is there enough signal in the pil
 - Bengaluru-trained models require explicit evaluation before transfer to other cities
 - Optimization quality is bounded by the accuracy of its cost/constraint inputs
 
----
 
 ## Ethics
 
 CANOPY is a decision-support layer for planners, ecologists, and city authorities — not an autonomous authority for land acquisition, displacement, enforcement, or service denial. The project prioritizes transparency, documented assumptions, uncertainty reporting, and human oversight.
 
----
 
 ## Future Research
 
@@ -239,7 +223,6 @@ CANOPY is a decision-support layer for planners, ecologists, and city authoritie
 - Human-in-the-loop expert validation
 - Explainable, auditable intervention ranking
 
----
 
 ## Citation
 
@@ -251,7 +234,6 @@ and Climate Risk Mitigation. GitHub repository.
 
 Machine-readable citation available in [`CITATION.cff`](CITATION.cff).
 
----
 
 ## License
 
